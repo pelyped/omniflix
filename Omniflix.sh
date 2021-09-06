@@ -30,7 +30,7 @@ omniflixhubd init $OMNIFLIX_NODENAME --chain-id $chain_id
 #   --pubkey=$(omniflixhubd tendermint show-validator) \
 #   --chain-id="$chain_id" \
 #   --moniker=$OMNIFLIX_NODENAME \
-#   --details="$OMNIFLIX_NODENAME from OmiflixNode" \
+#   --details="$OMNIFLIX_NODENAME from OmniNode" \
 #   --commission-rate="0.10" \
 #   --commission-max-rate="0.20" \
 #   --commission-max-change-rate="0.01" \
