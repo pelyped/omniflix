@@ -88,6 +88,10 @@ sleep 1
 sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_15
 sleep 1
 sudo -u casper /etc/casper/config_from_example.sh 1_4_15
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_5_2
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_5_2
 
 
 sudo logrotate -f /etc/logrotate.d/casper-node
