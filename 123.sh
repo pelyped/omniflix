@@ -1,22 +1,85 @@
-#!/bin/bash
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_1_0
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_1_0
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_1_2
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_1_2
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_2_0
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_2_0
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_2_1
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_2_1
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_3_1
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_3_1
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_3_2
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_3_2
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_3_4
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_3_4
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_1
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_1
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_2
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_2
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_3
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_3
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_4
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_4
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_5
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_5
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_6
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_6
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_7
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_7
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_8
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_8
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_10
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_10
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_13
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_13
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_4_15
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_4_15
+sleep 1
+sudo -u casper /etc/casper/pull_casper_node_version.sh casper-test.conf 1_5_2
+sleep 1
+sudo -u casper /etc/casper/config_from_example.sh 1_5_2
 
-sudo apt update && sudo apt upgrade -y
 
-PUBLIC_KEY_HEX=$(sudo -u casper cat /etc/casper/validator_keys/public_key_hex)
-STATE_ROOT_HASH=$(casper-client get-state-root-hash --node-address http://127.0.0.1:7777 | jq -r '.result | .state_root_hash')
-PURSE_UREF=$(sudo -u casper casper-client query-state --node-address http://127.0.0.1:7777 --key "$PUBLIC_KEY_HEX" --state-root-hash "$STATE_ROOT_HASH" | jq -r '.result | .stored_value | .Account | .main_purse')
-casper-client get-balance --node-address http://127.0.0.1:7777 --purse-uref "$PURSE_UREF" --state-root-hash "$STATE_ROOT_HASH" | jq -r '.result | .balance_value'
+sudo logrotate -f /etc/logrotate.d/casper-node
+sudo systemctl start casper-node-launcher; sleep 2
+systemctl status casper-node-launcher
 
-PUBLIC_KEY_HEX=$(sudo -u casper cat /etc/casper/validator_keys/public_key_hex)
-CHAIN_NAME=$(curl -s http://127.0.0.1:8888/status | jq -r '.chainspec_name')
-
-sudo -u casper casper-client put-deploy \
-    --chain-name "$CHAIN_NAME" \
-    --node-address "http://127.0.0.1:7777/" \
-    --secret-key "/etc/casper/validator_keys/secret_key.pem" \
-    --session-path "/opt/add_bid.wasm" \
-    --payment-amount 75000000000 \
-    --gas-price=1 \
-    --session-arg=public_key:"public_key='$PUBLIC_KEY_HEX'" \
-    --session-arg=amount:"u512='900000000000'" \
-    --session-arg=delegation_rate:"u8='10'"
+echo "##########################################"
+echo "Installation finished"
+echo "Bond to the network"
+echo "##########################################"
