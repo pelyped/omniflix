@@ -1,55 +1,54 @@
 #!/bin/bash
-if [ ! $OMNIFLIX_NODENAME ]; then
-	read -p "Введите имя ноды(1в1 как у вас назывался валидатор в Omniflix): " OMNIFLIX_NODENAME
-fi
-echo 'Ваше имя ноды: ' $OMNIFLIX_NODENAME
-sleep 1
-echo 'export OMNIFLIX_NODENAME='$OMNIFLIX_NODENAME >> $HOME/.profile
+
+#add ufw rules
+curl -s https://raw.githubusercontent.com/razumv/helpers/main/tools/install_ufw.sh | bash
+
+CASPER_VERSION=1_0_0
+CASPER_NETWORK=casper-test
+
+sudo apt-get update
+sudo apt install dnsutils jq mc git -y
+
+echo "deb https://repo.casperlabs.io/releases" bionic main | sudo tee -a /etc/apt/sources.list.d/casper.list
+curl -O https://repo.casperlabs.io/casper-repo-pubkey.asc
+sudo apt-key add casper-repo-pubkey.asc
+sudo apt update --allow-insecure-repositories
 
 
+sudo apt install -o APT::Get::AllowUnauthenticated=true casper-node-launcher -y
+sudo apt install -o APT::Get::AllowUnauthenticated=true casper-client -y
+
+cd ~
+sudo apt purge --auto-remove cmake -y
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
 sudo apt update
-sudo apt install curl -y
-curl -s https://raw.githubusercontent.com/razumv/helpers/main/tools/install_go.sh | bash
+sudo apt install cmake -y
 
+sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
 
-source $HOME/.profile
-sleep 1
+sudo apt install libssl-dev -y
+sudo apt install pkg-config -y
+sudo apt install build-essential -y
 
-git clone https://github.com/Omniflix/omniflixhub.git
-cd omniflixhub
-git checkout v0.2.1
-make install
+BRANCH="1.0.20" \
+    && git clone --branch ${BRANCH} https://github.com/WebAssembly/wabt.git "wabt-${BRANCH}" \
+    && cd "wabt-${BRANCH}" \
+    && git submodule update --init \
+    && cd - \
+    && cmake -S "wabt-${BRANCH}" -B "wabt-${BRANCH}/build" \
+    && cmake --build "wabt-${BRANCH}/build" --parallel 8 \
+    && sudo cmake --install "wabt-${BRANCH}/build" --prefix /usr --strip -v \
+    && rm -rf "wabt-${BRANCH}"
 
-chain_id=flixnet-2
-omniflixhubd init $OMNIFLIX_NODENAME --chain-id $chain_id
-# omniflixhubd keys add $OMNIFLIX_NODENAME &>> $HOME/account.txt
-#
-# omniflixhubd add-genesis-account $OMNIFLIX_NODENAME 50000000uflix
-#
-# omniflixhubd gentx $OMNIFLIX_NODENAME 50000000uflix \
-#   --pubkey=$(omniflixhubd tendermint show-validator) \
-#   --chain-id="$chain_id" \
-#   --moniker=$OMNIFLIX_NODENAME \
-#   --details="$OMNIFLIX_NODENAME from OmniNode" \
-#   --commission-rate="0.10" \
-#   --commission-max-rate="0.20" \
-#   --commission-max-change-rate="0.01" \
-#   --min-self-delegation="1"
+cd ~
+git clone https://github.com/casper-network/casper-node.git
+cd casper-node/
+git checkout release-1.5.2
+make setup-rs
+make build-client-contracts -j
 
-sudo tee /etc/systemd/system/omniflixhubd.service > /dev/null <<EOF
-[Unit]
-Description=OmniFlixHub Daemon
-After=network-online.target
-[Service]
-User=$USER
-ExecStart=$(which omniflixhubd) start
-Restart=always
-RestartSec=3
-LimitNOFILE=65535
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable omniflixhubd
-#sudo systemctl start omniflixhubd
+echo "##########################################"
+echo "Environment install finished"
+echo "In next step you need to move old keys from Casper or generate new"
+echo "##########################################"
