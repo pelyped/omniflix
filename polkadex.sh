@@ -1,51 +1,32 @@
 #!/bin/bash
 
-if [ ! $POLKADEX_NODENAME ]; then
-	read -p "Введите ваше имя ноды(придумайте): " POLKADEX_NODENAME
+exists()
+{
+  command -v "$1" >/dev/null 2>&1
+}
+if exists curl; then
+        echo ''
+else
+  sudo apt update && sudo apt install curl -y < "/dev/null"
 fi
-sleep 1
-echo 'export POLKADEX_NODENAME='$POLKADEX_NODENAME >> $HOME/.profile
-
-sudo apt install git mc jq htop net-tools -y
-
-curl -s https://raw.githubusercontent.com/razumv/helpers/main/tools/install_rust.sh | bash
-source $HOME/.cargo/env
-sleep 1
-
-rustup toolchain add nightly-2021-05-11
-rustup target add wasm32-unknown-unknown --toolchain nightly-2021-05-11
-rustup target add x86_64-unknown-linux-gnu --toolchain nightly-2021-05-11
-
+bash_profile=$HOME/.bash_profile
+if [ -f "$bash_profile" ]; then
+    . $HOME/.bash_profile
+fi
+sleep 1 && curl -s https://api.nodes.guru/logo.sh | bash && sleep 1
+sudo apt update && sudo apt install jq -y
 cd $HOME
-curl -O -L https://github.com/Polkadex-Substrate/Polkadex/releases/download/v0.4.1-rc5/customSpecRaw.json
-git clone https://github.com/Polkadex-Substrate/Polkadex.git
-cd $HOME/Polkadex
-git checkout v0.4.1-rc5
-cargo build --release
+#PULSAR_LATEST_TAG=$(curl -s https://api.github.com/repos/subspace/pulsar/tags | jq -r '.[0].name')
+#wget -O pulsar https://github.com/subspace/pulsar/releases/download/$PULSAR_LATEST_TAG/pulsar-ubuntu-x86_64-v2-$PULSAR_LATEST_TAG
+#sudo chmod +x pulsar
+#sudo mv pulsar /usr/local/bin/
+wget -O subspace-node https://github.com/subspace/subspace/releases/download/gemini-3g-2023-nov-21/subspace-node-ubuntu-x86_64-skylake-gemini-3g-2023-nov-21 
+wget -O subspace-farmer https://github.com/subspace/subspace/releases/download/gemini-3g-2023-nov-21/subspace-farmer-ubuntu-x86_64-skylake-gemini-3g-2023-nov-21
+sudo chmod +x subspace-node subspace-farmer
+sudo mv subspace-node /usr/local/bin/
+sudo mv subspace-farmer /usr/local/bin/
 
-sudo tee <<EOF >/dev/null /etc/systemd/journald.conf
-Storage=persistent
-EOF
-sudo systemctl restart systemd-journald
-
-sudo tee <<EOF >/dev/null /etc/systemd/system/polkadex.service
-[Unit]
-Description=Polkadex Testnet Validator Service
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-User=$USER
-#ExecStart=$HOME/Polkadex/target/release/polkadex-node --rpc-cors=all --chain=$HOME/customSpecRaw.json --bootnodes /ip4/13.235.92.50/tcp/30333/p2p/12D3KooWC7VKBTWDXXic5yRevk8WS8DrDHevvHYyXaUCswM18wKd --pruning=archive --validator --name '$POLKADEX_NODENAME | KTS_Group'
-ExecStart=$HOME/Polkadex/target/release/polkadex-node --chain=$HOME/customSpecRaw.json --rpc-cors=all --bootnodes /ip4/13.235.190.203/tcp/30333/p2p/12D3KooWC7VKBTWDXXic5yRevk8WS8DrDHevvHYyXaUCswM18wKd --validator --name '$POLKADEX_NODENAME | KTS_Group'
-Restart=always
-RestartSec=3
-LimitNOFILE=10000
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable polkadex
-sudo systemctl restart polkadex
+sudo systemctl restart subspaced
+sleep 20
+sudo systemctl restart subspaced-farmer
+echo -e '\n\e[42mYour Subspace node updated successfully\e[0m\n' && sleep 1
