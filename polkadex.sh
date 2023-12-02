@@ -20,8 +20,8 @@ cd $HOME
 #wget -O pulsar https://github.com/subspace/pulsar/releases/download/$PULSAR_LATEST_TAG/pulsar-ubuntu-x86_64-v2-$PULSAR_LATEST_TAG
 #sudo chmod +x pulsar
 #sudo mv pulsar /usr/local/bin/
-wget -O subspace-node https://github.com/subspace/subspace/releases/download/gemini-3g-2023-nov-21/subspace-node-ubuntu-x86_64-skylake-gemini-3g-2023-nov-21 
-wget -O subspace-farmer https://github.com/subspace/subspace/releases/download/gemini-3g-2023-nov-21/subspace-farmer-ubuntu-x86_64-skylake-gemini-3g-2023-nov-21
+wget -O subspace-node https://github.com/subspace/subspace/releases/download/gemini-3g-2023-dec-1/subspace-node-ubuntu-x86_64-skylake-gemini-3g-2023-dec-1 
+wget -O subspace-farmer https://github.com/subspace/subspace/releases/download/gemini-3g-2023-dec-1/subspace-farmer-ubuntu-x86_64-skylake-gemini-3g-2023-dec-1
 sudo chmod +x subspace-node subspace-farmer
 sudo mv subspace-node /usr/local/bin/
 sudo mv subspace-farmer /usr/local/bin/
